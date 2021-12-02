@@ -1,0 +1,274 @@
+\subsection{Normalisation}
+Normalisation of equations reduces the original equation with physical units into dimensionless units.
+\begin{align*}
+V_T = \frac{k_BT}{q} \\ 
+L_D = \sqrt{\frac{\epsilon V_T}{q n_i}} \\
+E_0 = \frac{V_T}{L_D} \\
+J_o = \frac{q \mu_n n_i V_T}{L_D} \\
+t_0 = \frac{\epsilon}{q \mu_n n_i} \\
+R_o = \frac{n_i}{t_0}
+\tag{2.1} \label{eq:21} 
+\end{align*}
+$N_C$, $N_V$, $N$, $p$, $n$ and $n_i$ have units of doping density. $E_g$, $\psi$, $\phi_n$, $\phi_p$ and $V_T$  have units of potential. $L_D$ has dimensions of length.$E_0$ and $\vec{E}$ have dimensions of electric field.
+$\vec{J_n}$, $\vec{J_p}$ and $J_o$ has dimensions of current density. $\mu_n$ and $\mu_p$ has dimensions of mobility. $G$,$R$ and $R_o$ has dimensions of recombination rate. $t_0$ and $\tau$ have dimensions of time.\\
+Quantities with units of length, potential, electric field, dopant density, current density,\ recombination rate, time and mobility are scaled down by $L_D$, $V_T$, $E_0$, $n_i$, $t_n$, $J_o$, $R_o$, $t_0$ and $\mu_n$ respectively. 
+
+For simplicity, notation remains the same but quantities refer to dimensionless quantities in the remaining sections unless otherwise stated. Normalised equations take the following form.
+\begin{equation}
+\nabla^2 \psi = n - p - N  \tag{2.2} \label{eq:22}
+\end{equation}
+
+\textbf{Equilibrium}:
+Under equilibrium,
+\begin{align*}
+n =  N_C F_{1/2}(\psi-\psi_i) \\
+p = N_V F_{1/2}(\psi_i-E_g-\psi)
+\tag{2.3} \label{eq:23}
+\end{align*}
+
+\textbf{Steady state current flow}:
+Under steady state current flow,
+\begin{align*}
+n = e^{\psi-\phi_n} \\
+p = e^{-(\psi-\phi_p)} \\
+R - G = \vec{\nabla}.\vec{J_n} = -\vec{\nabla}.\vec{J_p} \\
+\vec{J_n} = -n\nabla\phi_n = -n\nabla\psi + \nabla n = n\vec{E} + \nabla n \\
+\vec{J_p} = -p\mu_p\nabla\phi_p  = -p\mu_p\nabla\psi - \mu_p\nabla p = p\mu_p\vec{E} - \mu_p\nabla p \\
+R = \frac{pn-1}{\tau_p(n+1) + \tau_n(p+1)}
+\tag{2.4} \label{eq:24}
+\end{align*}
+
+Integral form of conservation equation can be written as
+\begin{align*}
+\iiint (R-G) dV = \varoiint \vec{J_n}.\vec{dS} = - \varoiint \vec{J_p}.\vec{dS} \\
+For\ 1-D\ semiconductor,
+\int (R-G)\ dx = \int J_n\ dx = - \int J_p\ dx \\
+J_n = \frac{dn}{dx} + n E = -n \frac{d\phi_n}{dx}\\
+J_p = -\mu_p\frac{dp}{dx} + p\mu_p E = -p \frac{d\phi_p}{dx}
+\tag{2.5} \label{eq:25}
+\end{align*}
+
+\subsection{Linearisation}
+Since Poisson equation along with fermi-dirac statistics for charge carriers is non-linear PDE, it needs to be linearised to make solution methods of linear algebra applicable.
+
+Let $\Theta$ be a small deviation of the true solution of Poisson’s equation $\Phi$ from the approximate solution $\bar{\Phi}$. 
+\begin{align*}
+\Phi = \bar{\Phi} + \Theta \\
+\implies \nabla^2 (\bar{\Phi} + \Theta) = \nabla^2 \bar{\Phi} + \nabla^2\Theta = n - p - N
+\end{align*}
+
+Since electron and hole densities depend on electrostatic potential, they will also deviate from true densities and this deviation can be linearised to linearise the equation. 
+\begin{align*}
+p \approx \bar{p} + \Theta\left(\frac{\partial p}{\partial \psi}\right)_{\psi = \bar{\Phi}} \\
+n \approx \bar{n} + \Theta\left(\frac{\partial n}{\partial \psi}\right)_{\psi = \bar{\Phi}}  \\
+\ where\ \bar{p} = p(\psi = \bar{\Phi})\ and\ \bar{n} =n(\psi = \bar{\Phi})
+\end{align*}
+
+\begin{equation}
+\implies \nabla^2 \Theta = r + \Theta \left(\left(\frac{\partial n}{\partial \psi}\right)_{\psi = \bar{\Phi}} - \left(\frac{\partial p}{\partial \psi}\right)_{\psi = \bar{\Phi}}\right) \tag{2.6} \label{eq:26}
+\ where\ r = (\bar{n} - \bar{p} - N) - \nabla^2 \bar{\Phi}
+\end{equation}
+
+\begin{align*}
+  \frac{d}{dx}F_j(x) = F_{j-1}(x) \\
+  \implies \frac{d}{dx} F_{1/2}(x) = F_{-1/2}(x) \tag{2.7} \label{eq:27}
+\end{align*} 
+
+\textbf{Equilibrium}:
+Using \eqref{eq:23} and \eqref{eq:27}),
+\begin{align*}
+\frac{\partial n}{\partial \psi} =  N_C F_{-1/2}(\psi-\psi_i) \\
+\frac{\partial p}{\partial \psi} = -N_V F_{-1/2}(\psi_i-E_g-\psi) \tag{2.8} \label{eq:28}
+\end{align*} 
+
+Using \eqref{eq:26} and \eqref{eq:28},
+\begin{align*}
+\nabla^2 \Theta = r + \Theta ( N_C F_{-1/2}(\bar{\Phi}-\psi_i) + N_V F_{-1/2}(\psi_i-E_g-\bar{\Phi})) \tag{2.9} \label{eq:29}
+\end{align*} 
+
+\textbf{Steady state current flow}:
+\begin{align*}
+\frac{\partial n}{\partial \psi} = e^{\psi-\phi_n} = n \\
+\frac{\partial p}{\partial \psi} = -e^{-(\psi-\phi_p)} = -p \\
+\frac{\partial n}{\partial \phi_n} = -n \\
+\frac{\partial p}{\partial \phi_p} = p 
+\tag{2.10} \label{eq:30}
+\end{align*} 
+
+At steady state with quasi fermi levels (using \eqref{eq:24} ),
+\begin{align*}
+\nabla^2 \Theta = r + \Theta ( e^{\bar{\Phi}-\phi_n} + e^{-(\bar{\Phi}-\phi_p)}) \tag{2.11} \label{eq:31}
+\end{align*} 
+
+Continuity equations need to be linearised with respect to $d\phi_n$, $d\phi_p$ and $d\psi$ where $d(variable)$ implies the correction in the solution to approximate solution in current iteration. In following equations, $\bar{s}$ represents the approximate solution $s$ from previous iteration (value of variable about which the variable is linearised). Charge carrier flux and recombination needs to be linearised.
+
+In discretisation of charge carriers flux, $\alpha$ and $\beta$ are defined.
+
+\begin{align*}
+\alpha = e^{-\phi_n}  \\
+\beta = e^{\phi_p}
+\end{align*}
+
+\begin{align*}
+\phi_n = \bar{\phi_n} + d\phi_n   \\
+\phi_p = \bar{\phi_p} + d\phi_p 
+\end{align*}
+
+\begin{align*}
+\implies \alpha = e^{-(\bar{\phi_n} + d\phi_n)} = e^{-\bar{\phi_n}} (1 - d\phi_n)  \\
+\beta = e^{\bar{\phi_p} + d\phi_p} = e^{\bar{\phi_p}} (1 + d\phi_p)
+\tag{2.12} \label{eq:cont_linear}
+\end{align*}
+
+Discretisation also involves considering potentials between the nodes in the mesh which is done assuming linear variation of potential between the nodes.
+
+\begin{align*}
+\psi_{i-\frac{1}{2}} = \frac{\psi_{i} + \psi_{i-1}}{2} \\
+\psi_{i+\frac{1}{2}} = \frac{\psi_{i} + \psi_{i+1}}{2} \\
+\psi = \bar{\psi} + d\psi
+\end{align*}
+
+Using above linearisation, charge carriers flux is linearised with respect to $d\phi_n$, $d\phi_p$ and $d\psi$.
+
+\iffalse
+\begin{align*}
+p \approx \bar{p} (1 - (d\psi - d\phi_p))  \\
+n \approx \bar{n} (1 + (d\psi - d\phi_n)) 
+\end{align*}
+
+\begin{align*}
+\vec{J_n} = -n\nabla\phi_n = -\bar{n} (1 + (d\psi - d\phi_n)) \nabla( \bar{\phi_n} + d\phi_n ) = -\bar{n}( (d\psi - d\phi_n) \nabla(\bar{\phi_n}) + \nabla(\bar{\phi_n}) +\nabla(d\phi_n))  \\
+\vec{J_p} = -\mu_p p \nabla\phi_p = -\mu_p \bar{p} (1 - (d\psi - d\phi_p)) \nabla( \bar{\phi_p} + d\phi_p ) = -\mu_p \bar{p}( -(d\psi - d\phi_p) \nabla(\bar{\phi_p}) + \nabla(\bar{\phi_p}) +\nabla(d\phi_p))\\
+R = \bar{R} + \frac{\partial R}{\partial \psi} d\psi + \frac{\partial R}{\partial \phi_p} d\psi_p + \frac{\partial R}{\partial \phi_n} d\psi_n
+\tag{2.12} \label{eq:cont_linear}
+\end{align*}
+
+\fi
+
+Recombination rate of e-h pairs is given (in normalised variables) is given by \eqref{eq:24}.\\
+
+Let $\beta = \tau_p (n+1) + \tau_n (p+1)$ 
+
+\begin{align*}
+\implies R = \frac{pn-1}{\beta}
+\end{align*}
+
+\begin{align*}
+\implies \frac{\partial R}{\partial n} =  \frac{p}{\beta} - (pn-1)\frac{\tau_p}{\beta^2} \\
+\frac{\partial R}{\partial p} = \frac{n}{\beta} - (pn-1)\frac{\tau_n}{\beta^2} \tag{2.13} \label{eq:delR_p_n}
+\end{align*}
+
+From \eqref{30},
+\begin{align*}
+\implies \frac{\partial R}{\partial \phi_n} =  \frac{\partial n}{\partial \phi_n} \frac{\partial R}{\partial n} = -n \frac{\partial R}{\partial n} \\
+\frac{\partial R}{\partial \phi_p} =  \frac{\partial n}{\partial \phi_p} \frac{\partial R}{\partial p} = p \frac{\partial R}{\partial p} 
+\end{align*}
+
+Using \eqref{eq:delR_p_n},
+\begin{align*}
+\frac{\partial R}{\partial \phi_n} = - \frac{pn}{\beta} + (pn-1)\frac{n\tau_p}{\beta^2} \\
+\frac{\partial R}{\partial \phi_p} =  \frac{pn}{\beta} - (pn-1)\frac{p\tau_n}{\beta^2} \tag{2.14} \label{eq:delR_fp_fn}
+\end{align*}
+
+Since electrostatic potential and quasi fermi levels are relative values with respect to some reference level, changing all of them by same amount is equivalent to just changing the reference level. Physically, the recombination rate would be unaffected.
+
+\begin{align*}
+\implies \frac{\partial R}{\partial \psi} + \frac{\partial R}{\partial \phi_p} + \frac{\partial R}{\partial \phi_n} = 0 \\
+\implies \frac{\partial R}{\partial \psi} = - \left(\frac{\partial R}{\partial \phi_p} + \frac{\partial R}{\partial \phi_n}\right)
+\tag{2.15} \label{eq:delR_V_fp_fn}
+\end{align*}
+
+Using \eqref{eq:delR_fp_fn} and \eqref{eq:delR_V_fp_fn}, small change in $R$ is linearised with respect to $V$,$\phi_n$ and $\phi_p$.
+
+\textbf{Steady signal ac current}:
+For small signal ac current, recombination and charge carrier flux is linearised as shown above with $variable_{ac}$ replacing $d(variable)$ in the above linearisation schemes.
+
+Now, the terms needed to linearised are charge carrier density time derivatives.
+
+\begin{align*}
+n_{ac} = \left({\frac{\partial n}{\partial \psi} \psi_{ac}+ \frac{\partial n}{\partial \phi_n} ({\phi_n})_{ac}}\right)_{\psi=\psi_{dc},\phi_n=({\phi_n})_{dc},\phi_p = ({\phi_p})_{dc},\omega=0} = n_{dc} (\psi_{ac}-({\phi_n})_{ac}) \\
+p_{ac} = \left({\frac{\partial p}{\partial \psi} \psi_{ac}+ \frac{\partial p}{\partial \phi_p} ({\phi_p})_{ac}}\right)_{\psi=\psi_{dc},\phi_n=({\phi_n})_{dc},\phi_p = ({\phi_p})_{dc},\omega=0} = p_{dc} (-\psi_{ac}+({\phi_p})_{ac})
+\end{align*}
+
+From \eqref{eq:ac_derivative},
+\begin{align*}
+\implies \left( \frac{\partial n}{\partial t} \right)_{ac} = \iota \omega n_{ac} = \iota \omega n_{dc} (\psi_{ac}-({\phi_n})_{ac})\\
+\left( \frac{\partial p}{\partial t} \right)_{ac} = \iota \omega p_{ac} = \iota \omega p_{dc} (-\psi_{ac}+({\phi_p})_{ac})
+\tag{2.16} \label{eq:ac_cont}
+\end{align*}
+
+\subsection{Discretisation}
+To solve the system numerically, points in the semiconductor are chose over which $\psi$, $n$ and $p$ are calculated. Mesh generated is rectangular in nature though mesh spacing can be non-uniform. 
+Finite difference methods are used to calculate laplacian and derivatives on rectangular grid. This makes the linear formulation into finite dimensional matrix equation which can be solved using methods like tridiagonal matrix algorithm and successive over-relaxation.
+Let $x_0$,$x_1$,...,$x_n$ be x-coordinate of points on the mesh. Then,
+\begin{align*}
+\frac{\partial f}{dx} = \frac{1}{x_{i+1}-x_{i-1}}\left(\frac{f(x_{i+1})-f(x_{i})}{x_{i+1}-x_{i}} (x_{i}-x_{i-1}) + \frac{f(x_{i})-f(x_{i-1})}{x_{i}-x_{i-1}} (x_{i+1}-x_{i}\right)\\
+\frac{\partial^2 f}{dx^2} = \frac{2}{x_{i+1}-x_{i-1}}\left(\frac{f(x_{i+1})-f(x_{i})}{x_{i+1}-x_{i}}  - \frac{f(x_{i})-f(x_{i-1})}{x_{i}-x_{i-1}} \right)
+\tag{2.17} \label{eq:32}
+\end{align*} 
+
+Using above discretisation scheme, $\nabla^2 \psi$ is calculated for different geometries as explained in section $1.1$. 
+
+\textbf{Boundary points}:
+For boundary condition on $E_\perp$, a point symmetric outside the boundary is assumed.\\
+For reflecting left boundary ($E_x = 0$), $f(x_{-1},y_k) = f(x_1,y_k)$ \\
+For reflecting right boundary ($E_x = 0$), $f(x_{n-1},y_k) = f(x_{n+1},y_k)$ \\ \\
+For general $E_y$ on top and bottom boundary, $\frac{\partial f}{dy}$ is set to $E_y$ and above discretisation scheme is used to generate a linear equation.
+Then, $\nabla^2 \psi$ is calculated at the boundary
+
+For cylindrical geometry, $\nabla^2 \psi = 2 \frac{\partial^2 f}{dx^2} + \frac{\partial^2 f}{dy^2}$ at left reflecting boundary ($x=0$).  For other geometries and boundaries, $\nabla^2 \psi$ is same as in bulk.
+For dirichlet bounadry points, there is no need to evaluate $\nabla^2 \psi$. 
+
+\textbf{Equilibrium}:
+Using above discretisation and using linear description of Poisson equation, a set of linear equations relating $\Theta$ on the points on mesh is developed along with the boundary equations. 
+For 1-D, 
+\begin{align*}
+\frac{2}{x_{k+1}-x_{k-1}}\left(\frac{\Theta_{k+1}-\Theta_k}{x_{k+1}-x_{k}}  - \frac{\Theta_{k}-\Theta_{k-1}}{x_{k}-x_{k-1}} \right) = r + \Theta_k ( N_C F_{-1/2}(\bar{\Phi_k}-\psi_i) + N_V F_{1/2}(\psi_i-E_g-\bar{\Phi_k}))
+\end{align*}
+where $k$ denotes point index
+These set of equations form tridiagonal matrix for 1-D.
+
+\textbf{Steady state current flow}:
+For steady state current flow, only 1-D semiconductor is considered.
+
+\begin{align*}
+\frac{2}{x_{k+1}-x_{k-1}}\left(\frac{\Theta_{k+1}-\Theta_k}{x_{k+1}-x_{k}}  - \frac{\Theta_{k}-\Theta_{k-1}}{x_{k}-x_{k-1}} \right) = r + \Theta_k ( e^{\bar{\Phi_k}-(\phi_n)_k} + e^{-(\bar{\Phi_k}-(\phi_p)_k)})
+\end{align*}
+Poisson equation forms tridiagonal matrix equation in $\Theta$.
+
+For electron conservation and hole conservation,
+
+\begin{align*}
+J_n = e^V \frac{d}{dx} e^{-\phi_n} \\
+J_p = -e^{-V} \frac{d}{dx} e^{\phi_p} \\
+\int (R-G)\ dx = \int J_n\ dx = - \int J_p\ dx \\
+\implies \int {(e^V \frac{d}{dx} e^{-\phi_n}) dx}  = \int {(e^{-V} \frac{d}{dx} e^{\phi_p}) dx} = \int {(R - G)\ dx}
+\tag{2.18} \label{eq:33}
+\end{align*}
+
+Here, $V$ has used to denote potential.
+
+\begin{align*}
+({e^V \frac{d}{dx} e^{-\phi_n}})_{i+\frac{1}{2}} - ({e^V \frac{d}{dx} e^{-\phi_n}})_{i-\frac{1}{2}} = \int {(R_i - G_i)\ dx} \\
+({e^{-V} \frac{d}{dx} e^{\phi_p}})_{i+\frac{1}{2}} - ({e^{-V} \frac{d}{dx} e^{\phi_p}})_{i-\frac{1}{2}} = \int {(R_i - G_i)\ dx} 
+\tag{2.19} \label{eq:34}
+\end{align*}
+
+where $i$ denotes node with index $i$ on mesh.\\
+
+Defining $\alpha = e^{-\phi_n}$ and $\beta = e^{\phi_p}$,
+
+\begin{align*}
+e^{V_{i+\frac{1}{2}}} \frac{\alpha_{i+1}-\alpha_i}{{x_{i+1}-x_{i}}} - e^{V_{i-\frac{1}{2}}} \frac{\alpha_{i}-{\alpha_{i-1}}}{x_i-x_{i-1}} = (R_i - G_i)\frac{x_{i+1}-x_{i-1}}{2}\\
+e^{-V_{i+\frac{1}{2}}} \frac{\beta_{i+1}-\beta_i}{x_{i+1}-x_{i}} - e^{-V_{i-\frac{1}{2}}} \frac{\beta_{i}-\beta_{i-1}}{x_i-x_{i-1}} = (R_i - G_i)\frac{x_{i+1}-x_{i-1}}{2}
+\tag{2.20} \label{eq:35}
+\end{align*}  
+
+\begin{align*}
+R = \frac{pn-1}{\tau_p(n+1) + \tau_n(p+1)} = \frac{\alpha\beta-1}{\tau_p(e^{V}\alpha+1) + \tau_n(e^{-V}\beta+1)}
+\tag{2.21} \label{eq:39}
+\end{align*}        
+
+Since $R$ is non-linear in $\alpha$ and $\beta$, $R$ needs to be linearised with respect to $\alpha$ and $\beta$ about current values of $\alpha$ and $\beta$ at each iteration. This leads to tridiagonal system of equations for hole and electron conservation assuming generation is just a function of space.
+
+Also, $V$ needs interpolated on points between mesh points. Linear interpolation of $V$ is performed to evaluate at interleaved mesh.

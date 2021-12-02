@@ -1,0 +1,248 @@
+\subsection{Thermal Equilibrium}
+Thermal equilibrium implies that fermi level in the semiconductor remains constant through out the semiconductor (and equal to its surroundings) .The carriers inside the semiconductor are in equilibrium with surroundings and there is no net movement of carriers in any direction. This implies there is no net electron current and hole current in the device. 
+
+So, the electrostatic potential inside semiconductor is given by Poisson equation. 
+
+\begin{align*}
+\nabla^2 \psi = -\frac{\rho}{\epsilon}\\
+\rho = q(N_D - N_A + p - n)
+\end{align*}
+
+\begin{equation}
+\nabla^2 \psi = -\frac{q(N_D - N_A + p - n)}{\epsilon} \tag{1.1} \label{eq:1}
+\end{equation} 
+where $\psi$ represents electrostatic potential and $q$ represents charge of electron, $\rho$ represents charge density and $\epsilon$ represents dielectric permittivity of semiconductor, $N_D$ represents the number of dopants, $N_A$ represents the acceptor density, $p$ represent hole density,$n$ represent electron density
+
+Net doping ($N$) can be defined as difference of donor and acceptor density ($N_D-N_A$). So, \eqref{eq:1} can be rewritten as 
+
+\begin{equation}
+\nabla^2 \psi = -\frac{q(N + p - n)}{\epsilon} \tag{1.2}\label{eq:2}
+\end{equation}\\
+
+Electron and hole density are dependent on fermi level and band structure of semiconductor and given by Fermi-Dirac statistics. Complete Fermi-Dirac integral is used to calculate carrier density and its derivatives.\\
+
+Complete Fermi-Dirac integral ($F_j$) is defined by
+
+\begin{equation}
+  F_j(x) = \frac{1}{\Gamma(j+1)}\int^\infty_0 \frac{t^j}{e^{t-x}+1} dt \tag{1.3} \label{eq:3}
+\end{equation} 
+
+It can be seen that $F_j(x) \approx e^x$ when $x << 0$. This approximation is valid if fermi level is not very close to band edges.
+
+$n_i$ and $\psi_i$ are defined as
+\begin{align*}
+ n_i = \sqrt{N_C N_V} \frac{-E_g}{2k_BT}\\
+ \psi_i = \frac{1}{2q}(E_g + k_B T\ ln\frac{N_C}{N_V}) \tag{1.4} \label{eq:4}  
+\end{align*}
+
+\begin{align*}
+n = N_C F_{1/2}\left(\frac{q(\psi-\psi_i)}{k_BT}\right) \\
+p = N_V F_{1/2}\left(\frac{-q(E_g+\psi-\psi_i)}{k_BT}\right) \tag{1.5} \label{eq:5}
+\end{align*}
+where $E_g$ is potential band gap of semiconductor, $N_C$ and $N_V$ represent effective density of states in conduction and valence band respectively. 
+
+Using \eqref{eq:2} and \eqref{eq:5},
+
+\begin{equation}
+\nabla^2 \psi = -\frac{q}{\epsilon}(N + N_V F_{1/2}(\frac{-q(E_g+\psi-\psi_i)}{k_BT}) - N_C F_{1/2}(\frac{q(\psi-\psi_i)}{k_BT}))   \tag{1.6} \label{eq:6}
+\end{equation}\\
+
+In semiconductor devices, doping profiles and boundary conditions are cylindrically symmetric about vertical direction or uniform along one horizontal direction. Hence, electrostatic potential($\phi$) is also cylindrically symmetric about vertical direction or uniform along one horizontal direction 
+
+For cylindrically symmetric $\phi$,
+\begin{equation}
+\nabla^2 \psi = \frac{\partial^2\phi}{\partial x^2} + \frac{1}{x}\frac{\partial\phi}{\partial x} + \frac{\partial^2\phi}{\partial y^2}  \tag{1.7} \label{eq:7}
+\end{equation}
+where $x$ represents radial distance and $y$ represents distance along cylindrical axis
+
+For $\phi$ being uniform along one direction
+\begin{equation}
+\nabla^2 \psi = \frac{\partial^2\psi}{\partial x^2} + \frac{\partial^2\phi}{\partial y^2}   \tag{1.8} \label{eq:8}
+\end{equation}
+where $x$ represents horizontal axis and $y$ represents vertical axis
+
+Here, in all cases, system is symmetric about left vertical axis (x=0).
+
+In some cases, semiconductor has doping and boundary conditions variation along only one dimension. Then,$\phi$ varies only along one direction. Then, $\nabla^2 \phi$ becomes second derivative. 
+\begin{equation}
+\nabla^2 \psi = \frac{d^2\psi}{dy^2}  \tag{1.9} \label{eq:9}
+\end{equation}
+where $y$ represents dimension along which $\phi$ varies.
+
+For cases with 1-D structure due to symmetry,
+\begin{align*}
+	\nabla^2 \psi = \frac{1}{x^n} \frac{d}{dx}\left( x^n\frac{d\phi}{dx} \right)
+\end{align*}
+
+where $x$ represents radial dimension, $n=1$ for cylindrical symmetry and $n=2$ for spherical symmetry 
+
+\subsection{Steady State (Biased) Current flow}
+
+In steady state, carriers flow in semiconductor but there density in the semiconductor does not vary with time.
+So, along with the Poisson equation \eqref{eq:3}, hole conservation equation and electron conservation equation needs to be solved.
+
+In semiconductor, while carriers move, carriers can recombine which leads to reduction in carrier population. For conservation of electrons and holes, carriers need to be injected into the device. This leads to conservation equations which relate recombination rate to carrier current density.
+
+Recombination rate is rate at which carriers combine per unit volume per unit time.
+
+\begin{equation}
+R =  \frac{\vec{\nabla}.\vec{J_n}}{q} =-\frac{\vec{\nabla}.\vec{J_p}}{q}   \tag{1.10} \label{eq:10}
+\end{equation}
+
+Since semiconductor is not in thermal equilibrium, there is no notion of fermi level. So, carrier density is no longer given by \eqref{eq:4} and \eqref{eq:5}. Also, now we have 3 equations (\eqref{eq:2} and \eqref{eq:11}). But the unknowns are $\psi$, $n$, $p$, $\vec{J_p}$, $\vec{J_n}$ and $R$. 3 more equations are required to solve the problem.\\
+
+Most common is drift-diffusion formulation used to obtain carrier current densities.
+
+\begin{align*}
+\vec{J_n} = -qn\mu_n\nabla\phi_n \\ 
+\vec{J_p} = -qp\mu_p\nabla\phi_p  \tag{1.11} \label{eq:11}
+\end{align*}
+
+where $\mu_n$ and $\mu_p$ represent electron and hole mobility respectively and $\phi_n$ and $\phi_p$ represent electron and hole quasi-fermi level respectively.
+
+Total current density is given by
+\begin{align*}
+\vec{J} = \vec{J_n} + \vec{J_p}
+\end{align*}
+
+To obtain electron and hole densities with given quasi-fermi levels, $F_j(x) \approx e^x$ is used(in most cases, quasi-fermi level is far from band edge). 
+
+\begin{align*}
+n = n_i\ exp({\frac{q(\psi-\phi_n)}{k_BT}}) \\
+p = n_i\ exp({\frac{-q(\psi-\phi_p)}{k_BT}}) \tag{1.12} \label{eq:12}
+\end{align*}
+
+Along with this, SRH model for recombination leads to
+\begin{equation}
+R = \frac{pn - n_i^2}{\tau_n(p + n_i) + \tau_p(n + n_i)} \tag{1.13}\label{eq:13}
+\end{equation}
+
+where $n_i$ represents equilibrium carrier concentration given by \eqref{eq:4} and $\tau_n$ and $\tau_p$ are electron and hole lifetimes respectively.
+
+Additional generation mechanism can be added to this.   
+\eqref{eq:10} cam be rewritten as 
+
+\begin{equation}
+R - G =  \frac{\vec{\nabla}.\vec{J_n}}{q} =-\frac{\vec{\nabla}.\vec{J_p}}{q}   \tag{1.14} \label{eq:38}
+\end{equation}
+
+where $G$ is additional generation due to some other physical process.
+
+\subsection{Small Signal AC Current flow}
+More generally, (when system is not in steady state), charge carrier density varies with time.
+
+\begin{equation}
+R - G = -\frac{\partial{n}}{\partial t} + \frac{\vec{\nabla}.\vec{J_n}}{q} = -\frac{\partial{p}}{\partial t} -\frac{\vec{\nabla}.\vec{J_p}}{q}   \tag{1.15} \label{eq:39}
+\end{equation}
+
+Consider a small variation over steady state variation with radial frequency $\omega$. Then,
+
+\begin{align*}
+\phi_n = ({\phi_n})_{dc} + ({\phi_n})_{ac}\ e^{\iota \omega t} \\
+\phi_p = ({\phi_p})_{dc} + ({\phi_p})_{ac}\ e^{\iota \omega t} \\
+\psi = \psi_{dc} + \psi_{ac} e^{\iota \omega t}
+\end{align*}
+
+where ${\phi_n}_{ac}$, ${\phi_p}_{ac}$ and $\psi_{ac}$ are are complex functions of space and represent the complex amplitudes of small signal fluctuations over steady state solution.
+
+Let $F(\psi,\phi_n,\phi_p,\omega)$ be a function of $\psi$, $\phi_n$, $\phi_p$ and $\omega$. Then, $F$ is given by
+\begin{align*}
+F = F_{dc} + e^{\iota \omega t} \left({\frac{\partial F}{\partial \psi} \psi_{ac}+ \frac{\partial F}{\partial \phi_n} ({\phi_n})_{ac} +\frac{\partial F}{\partial \phi_p}({\phi_p})_{ac}}\right)_{\psi=\psi_{dc},\phi_n=({\phi_n})_{dc},\phi_p = ({\phi_p})_{dc},\omega=0} \\
+where\ F_{dc} = F_{\psi=\psi_{dc},\phi_n=({\phi_n})_{dc},\phi_p = ({\phi_p})_{dc},\omega=0} 
+\end{align*}
+
+\begin{align*}
+\implies \frac{\partial F}{\partial t} = \iota \omega e^{\iota \omega t} \left({\frac{\partial F}{\partial \psi} \psi_{ac}+ \frac{\partial F}{\partial \phi_n} ({\phi_n})_{ac} +\frac{\partial F}{\partial \phi_p}({\phi_p})_{ac}}\right)_{\psi=\psi_{dc},\phi_n=({\phi_n})_{dc},\phi_p = ({\phi_p})_{dc},\omega=0}
+\end{align*}
+
+\begin{align*}
+\implies
+F_{ac} = \left({\frac{\partial F}{\partial \psi} \psi_{ac}+ \frac{\partial F}{\partial \phi_n} ({\phi_n})_{ac} +\frac{\partial F}{\partial \phi_p}({\phi_p})_{ac}}\right)_{\psi=\psi_{dc},\phi_n=({\phi_n})_{dc},\phi_p = ({\phi_p})_{dc},\omega=0} \\
+\left({\frac{\partial F}{\partial t}}\right)_{ac} = \iota \omega F_{ac}
+\tag{1.16} \label{eq:ac_derivative}
+\end{align*}
+
+$\omega=0$ represents steady state solution.
+
+Using the above relations, ac small signal amplitudes for charge carrier flux, recombination and carrier current density can be written for given steady state solution and $\omega$.
+
+Since the carrier current density is changing with time, displacement current needs to be added to carrier current density such that total current density flux is zero.
+
+For uniform $\epsilon$ (single semiconductor), displacement current density is given by
+\begin{align*}
+\vec{J_d} = \epsilon \frac{\partial \vec{E}}{\partial t}
+\end{align*}
+where
+\begin{align*}
+\vec{E} = -\nabla{\psi} 
+\end{align*}
+
+For one dimensional semiconductor, 
+\begin{align*}
+\vec{E} = -\nabla{\psi} = -\frac{\partial{\psi}}{\partial x} \hat{x} 
+\end{align*}
+
+Total current density is given by
+\begin{align*}
+\vec{J} = \vec{J_n} + \vec{J_p} + \vec{J_d}
+\end{align*}
+
+\subsection{Boundary Conditions}
+
+Under thermal equilibrium, at each point on boundary, either electrostatic potential or electric field normal to the surface needs to specified at the boundary. For consistent boundary conditions, Electric flux should satisfy gauss law for given net charge inside semiconductor. 
+\begin{equation}
+   \varoiint \vec{E}.\vec{dS} =  \frac{1}{\epsilon} (net\ charge) = \frac{1}{\epsilon} \iiint \rho\ dV \tag{1.17} \label{eq:14}
+\end{equation}
+
+Since semiconductors are grown vertically,there is no electric field on horizontal boundaries of system as there is no electric charge present at both horizontal boundaries. Also, in all cases, system is symmetric about left vertical axis (x=0). So, left boundary is always reflecting.
+
+For cylindrically symmetric $\phi$,
+\begin{equation}
+\int ((E_y)_{bottom} - (E_y)_{top})\ x \ dx  = \frac{1}{\epsilon} \iint \rho x\ dx\ dy \tag{1.18}\label{eq:15}
+\end{equation}
+where $x$ represents radial distance and $y$ represents distance along cylindrical axis
+
+For $\phi$ being uniform along one direction
+\begin{equation}
+\int ((E_y)_{bottom} - (E_y)_{top}) \ dx  = \frac{1}{\epsilon} \iint \rho\ dx\ dy \tag{1.19}\label{eq:16}
+\end{equation}
+where $x$ represents horizontal axis and $y$ represents vertical axis
+
+For one-dimensional semiconductor, 
+\begin{equation}
+(E_y)_{bottom} - (E_y)_{top}  = \frac{1}{\epsilon} \iint \rho\ dy \tag{1.20}\label{eq:17}
+\end{equation}
+
+For neutral semiconductors, this means electric flux over the boundary is zero. 
+\begin{align*}	
+   \oiint \vec{E}.\vec{dS} =  0
+\end{align*}
+\begin{align*}   
+\int ((E_y)_{bottom} - (E_y)_{top})\ x \ dx  = 0\ for\ cylindrically\ symmetric\ \phi \\
+\int ((E_y)_{bottom} - (E_y)_{top}) \ dx  = 0\ for\ \phi\ being\ uniform\ along\ one\ direction \\
+(E_y)_{bottom} - (E_y)_{top}  = 0\ for\ one-dimensional\ semiconductor
+   \tag{1.21} \label{eq:18}
+\end{align*}
+
+For specifying potential boundary conditions, ohmic and schottky contacts are possible. 
+Under thermal equilibrium, schottky contacts specify a certain fixed potential at the boundary in addition to 
+\begin{equation}
+   \psi = \psi_i - \phi_B \tag{1.21} \label{eq:19}
+\end{equation}
+where $\phi_B$ represents schottky barrier 
+
+Ohmic boundary condition is special type of boundary condition which imply there is no charge at the boundary point under thermal equilibrium. 
+
+Under steady state current flow, ohmic contacts imply simple dirichlet boundary conditions, where surface
+potential, electron density and hole density are fixed.
+At boundary (under Maxwell-Boltzmann approximation),
+\begin{align*}
+\phi_n = \phi_p = V_{bias} \\
+n = \frac{1}{2}({N + \sqrt{N^2 + 4n_i^2}}) \\
+p = \frac{n_i^2}{n} \\ 
+\psi = V_{bias} + \frac{k_BT}{q} ln\frac{n}{n_i} \tag{1.22} \label{eq:20}
+\end{align*}
+
+For small signal ac current in one dimensional semiconductor, since the equations are linearised with respect to ac values, the solution variables($\psi_{ac}$, $(\phi_n)_{ac}$ and $(\phi_p)_{ac}$) are set to 1 unit at one end and 0 at the other end.
+
+Then, the small signal ac current density in the semiconductor is simply the admittance of device in chosen units.

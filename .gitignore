@@ -1,0 +1,12 @@
+*.pyc
+*.aux
+*.gz
+*.log
+*.gz
+*.png
+*.out
+*.bbl
+*.bbg
+*.nav
+*.snm
+*.toc

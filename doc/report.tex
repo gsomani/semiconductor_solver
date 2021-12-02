@@ -1,0 +1,42 @@
+\documentclass{article}
+\usepackage{amsmath,esint,textcomp,hyperref,graphicx,geometry,natbib,caption,subcaption,tikz}
+\geometry{left=2.5cm,right=2.5cm,top=2.5cm,bottom=2.5cm}
+\title{ \huge Semiconductor Solver \\
+  \large Computational Physics (PH354) Project}
+\author{Gaurav Somani}
+\date{19 June 2020}
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=magenta,      
+    urlcolor=red,
+}
+\urlstyle{same}
+
+\begin{document}
+\maketitle
+\pagenumbering{gobble}
+\newpage
+\pagenumbering{arabic}
+
+\setcounter{section}{-1}
+\section{Project Description}
+\input{description.tex}
+
+\section{Mathematical Formualtion}
+\input{mathematical_formulation.tex}
+
+\section{Numerical Formualtion}
+\input{numerical_formulation.tex}
+
+\section{Implementation}
+\input{implementation.tex}
+
+\section{Results}
+\input{results.tex}
+
+\clearpage
+\bibliographystyle{unsrt}
+\bibliography{ref}
+
+\end{document}

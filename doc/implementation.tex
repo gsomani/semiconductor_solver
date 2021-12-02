@@ -1,0 +1,145 @@
+\subsection{Fermi-Dirac Integral evaluation}
+Fast and accurate evaluation of Fermi-Dirac Integral is necessary for calculation of potential in semiconductor. 
+\begin{align*}
+F_j(x) =  \frac{1}{\Gamma(j+1)} \int^\infty_0 w_j(t)\frac{1}{e^{-t}+e^{-x}} dt = \frac{1}{\Gamma(j+1)} \int^\infty_0 w_j(t)g(t) dt \\
+where\ w_j(t) = t^j e^{-t}\ and\  g(t) = \frac{1}{e^{-t}+e^{-x}}.
+\end{align*}
+
+For $F_{1/2}(x)$ , $ w(x) = x^{1/2} e^{-x} $ and for $F_{-1/2}(x)$ , $ w(x) = x^{-1/2} e^{-x} $.
+
+The weight functions correspond to Gauss-Laguerre qaudrature with different generalised Laguerre polynomials. Weights and points are calculated for $\alpha=1/2$ and $\alpha=-1/2$ for polynomials of degree 160. 
+Then, it is used to numerically integrate $F_{1/2}(x)$ and $F_{-1/2}(x)$ with $g(t)$ being the integrand with $w_j(t)$ as weight function.\\
+For silicon, values of x only upto 16 are required. So, about 150 points of Gauss-Laguerre qaudrature are required. Then, numerical integration is used to produce array of values of both functions (with $2^{-8}$ being the difference). Actually, natural logarithm of function is stored since function has growth of exponential order for large range. 
+
+Then cubic spline is calculated for both the functions with (E , $ln(F_j(E))$ ) as coordinate of spline control point. Then, cubic spline is used to interpolate function values.
+
+So, $F_j(x) \approx exp(a_0 + b_i(x-x_i) + c_i(x-x_i)^2 + d_i(x-x_i)^3 )$ where $a_i$, $b_i$, $c_i$ and $d_i$ are given by polynomial defined by $x \in [x_i,x_{i+1}) $. 
+
+There is also a need to evaluate inverse Fermi-Dirac integrals. Joyce-Dixon approximation\cite{bart} is used to get initial estimate. 
+\begin{align*}
+(F_{1/2})^{-1}(x) \approx ln(x) + \frac{x}{\sqrt{8}} + \left(\frac{3}{16} - \frac{1}{\sqrt{27}}\right) x^2
+\end{align*}
+Then, newton's method is used to obtain more accurate value using following iteration (because of \eqref{eq:27} ).
+\begin{align*}
+x_{i+1} = x_i - \frac{F_{1/2}(x_i)}{F_{-1/2}(x_i)}
+\end{align*}
+
+\subsection{$\nabla^2\psi$ evaluation}
+For $\nabla^2\psi$ evaluation, 5-point stencil is used as described in section 2.3.
+Since $\nabla^2\psi$ evaluation is done on non-uniform grid for many iterations, a matrix with coefficients adjusted according to the grid spacing is precomputed. Then $\nabla^2\psi$ evaluation just involves taking dot product of 5-point stencil. Also, while evaluating coefficients, boundary conditions are incorporated in the coefficient matrix.
+This pre-computation saves a lot of computational time as it cuts the number of operations and is more effective for cylindrical geometry. For 1-D, it is necessary since it is required to set up tridiagonal matrix. 
+
+\subsection{Boundary conditions}
+
+Ohmic contacts are implemented by fixing $n$,$p$ and $\psi$ at contact. Schottky contact with predefined schottky barrier is implemented as dirichlet boundary condition. Left and right boundary are always reflecting boundaries with $\psi$ symmetric about it. Other boundary points can be set up with some fixed electric field.
+Electrical boundary conditions are taken as input and converted into required boundary conditions for $\psi$,$n$ and $p$ as described in section 1.3 .
+
+\subsection{Units}
+Units of physical quantities implemented for input and output are given below.
+\textbf{Potential} \textrightarrow\ $V$ \\
+\textbf{Length} \textrightarrow\ $\mu m$ \\
+\textbf{Electric Field} \textrightarrow\ $V/\mu m$ \\
+\textbf{Current density} \textrightarrow\  $A/cm^2$ \\
+\textbf{Carrier density} \textrightarrow\  $cm^{-3}$ \\
+
+\subsection{Mesh}
+Mesh is taken as input to the solver. For good accuracy, mesh should be sufficiently fine. In regions where doping variation happens (interface), mesh should be fine. But to save computational time, mesh can be coarse in bulk. Mesh spacing should be less than Debye length(L) (for maximum doping) near interface where $L=\frac{L_D n_i}{\sqrt{N_D}}$.\\ Domain is divided into sections and mesh spacing for each direction is defined for each section with $l$, $r$ and $n$. $l$ denotes length of the section, $r$ denotes ratio of consecutive grid spacings and $n$ denotes number of elements (or points) in the section. To define mesh, nodes at different points in mesh are defined and mesh spacing is defined around each node. Generally, junctions are set as nodes and spacing should be about debye length. Then, the region between nodes is called section. So, $l$,$r$ and $n$ are calculated for each section by interpolating mesh spacing on each section such that mesh spacing is in geometric progression. For good mesh, ratio between consecutive spacings is between $\frac{2}{3}$ and $\frac{3}{2}$.
+Since mesh is rectangular, mesh spacing can be defined independently for each direction for each section. Subsequently, boundary conditions are set on the boundary mesh points.
+
+\subsection{Initial guess}
+\textbf{Equilibrium}:
+Initial guess is computed in order to obtain a approximate solution $\bar{\Phi}$ which is used in obtaining linearised Poisson equation. To achieve convergence, initial approximate solution should be close to true solution. Natural way of obtaining this is to set the guess at each point to potential as if it was isolated. So, it means there is no charge at that point and $\vec{\nabla}.\vec{E} = \nabla^2\psi = 0$ there. This usually means to calculate inverse Fermi-Dirac integral or solving a transcendental equation with newton's method.\\
+A simpler and faster method is obtained after approximating Fermi-Dirac integral by $exp(x)$.
+\begin{align*}
+\bar{\Phi} = sinh^{-1}(N/2)
+\end{align*}
+
+\textbf{Steady state current flow}:
+Initial guess for a bias point is the solution at previous bias for $\psi$,$n$ and $p$. For first non-equilibrium solution, equilibrium solution is set as initial guess which is loaded at start of input file or generated at start using structure parameters. 
+
+\subsection{Constants}
+Current implementation assumes Silicon as semiconductor and $T = 300\ K$. Physical constants for Silicon used in the implementation are listed below.
+\begin{align*}
+\epsilon = 1.04 \times 10^{-12}\ F/cm \\
+E_g = 1.08\ V \\
+N_C = 2.80 \times 10^{19}\ cm^{-3}\\
+N_V = 1.04 \times 10^{19}\ cm^{-3} \\
+\mu_n = 1000\ V cm^2 s^{-1}  \\
+\mu_p = 500\ V cm^2 s^{-1}  \\
+\tag{3.1} \label{eq:36} 
+\end{align*}
+Using these, following are the derived constants.
+\begin{align*}
+V_T = 25.9\ mV \\
+L_D = 34.1\ \mu m \\
+E_0 = 7.57\ V/cm \\
+t_0 = 0.451\ \mu s \\
+R_o = 3.21 \times 10^{16}\ cm^{-3}s^{-1}\\
+J_o = 1.76 \times 10^{-5} \ A/cm^2 \\
+n_i = 1.45 \times 10^{10}\ cm^{-3} \\
+\psi_i = 0.553\ V 
+\tag{3.2} \label{eq:37} 
+\end{align*}
+
+\subsection{Numerical method for solving sparse linear matrix}
+\textbf{Equilibrium}:
+For 1-D, system of equations form tridiagonal matrix equation which is solved using \href{https://en.wikipedia.org/wiki/Tridiagonal_matrix_algorithm}{Thomas algorithm}. At each iteration, equation is linearised and then solved using Thomas algorithm.  
+
+For 2-D, system of equations form a sparse matrix but it is not limited to near diagonal elements. So, \href{https://en.wikipedia.org/wiki/successive-over-relaxation} {Successive-over-relaxation method} is used after linearising the equaton at each iteration. $\omega$, by default, is set to 1.85 but can be changed by passing parameter to solve function.
+
+Ordering of variables for applying Gauss-Siedel is Red-Black Gauss-Siedel where elements are ordered in chessboard fashion. This helps vectorise the program which provides significant speed up due to NumPy's implementaion of vectorised code in C. 
+
+Convergence and its speed (or order) are two important parameters for deciding solving algorithm. Here, convergence speed is dependent on $\omega$ and can be really sped up optimal $\omega$. 
+
+\textbf{Error Criterion}:
+For equilibrium solution, error criterion is set on potential update on each iteration. When potential update falls below a certain level (given by error criterion), solver stops and solution is considered converged.
+
+A damping factor is used to reduce $\omega$ if relative error starts to increase. 
+
+\begin{align*}
+\delta_i = {\frac{{V^{i}_{node}-V^{i-1}_{node}}}{\max(1,V^{i}_{node})}} \tag{3.3}
+\end{align*}
+
+where $V^i$ is normalised potential at iteration $i$ and $node$ refers to the point where maximum change of potential occurs at iteration $i$.
+
+\subsection{Increasing the convergence rate by Multi grid method}
+Poisson equation's solution contains modes of small frequencies which converge very slowly using fine mesh. So, to overcome this, multi-grid method is employed. Mesh set by user is divided recursively to coarser mesh by reducing mesh lines to half for each direction (number of mesh nodes decrease by factor of 4). For coarser mesh, iterative methods run in small time and also converge faster. Then, the solution is interpolated using cubic spline on finer mesh which starts as good initial guess for finer mesh. Because lower frequency modes are already present, this converges faster. Overall, algorithm becomes faster. Multi-grid methods provide best time complexity possible.     
+
+\textbf{Multi-grid method}: Multi-grid method used here recursively solves for potential on coarser mesh until mesh becomes coarse enough to be quickly solved. Mesh is coarsened such that it coarsened mesh represents structure satisfactorily. This is done by choosing alternating points in each direction to construct coarser mesh. Also, boundary conditions are propagated into the coarse mesh. After potential is calculated, it is linearly interpolated on finer mesh and this acts as initial approximation to the solution.
+
+It is observed that multi-grid methods increase rate of convergence significantly.
+
+\subsection{Alternate direction implicit method}
+Since poisson equation matrix is tridiagonal in 1-D, it can be quickly solved. So, alternate direction implicit method becomes a good method for solving poisson equation. Laplacian operator contains partial derivatives along two directions. So, values along one direction are assumed to be constant and tridiagonal matrix equations are set up along other direction. So, system is relaxed along one direction. Then, it is relaxed along the other direction. This process is carried out until convergence. Error criterion is similar to SOR.
+
+One of the methods (ADI or SOR) can be used for equilibrium solution calculation. ADI is the default method as it was found that ADI performed  better than SOR in test cases. Also, there is no tuning parameter like relaxation parameter $\omega$ for SOR required in ADI.
+
+\subsection{Solving coupled set of equations for steady state current flow}
+For current flowing under steady state, 3 coupled equations ( poisson,electron and hole conservation) need to be simultaneously solved. First, all 3 equations are linearised. For 1-D, these simply become 3 tridiagonal matrix equations.\\ 
+
+\textbf{Gummel Method}: Solve linearised poisson equation at given bias. Then, use the electron and hole density resulting (derived from quasi fermi levels and potential) to solve electron conservation and then hole conservation equations. This method is simple to implement and works well for low bias. For higher bias, coupling between conservation equations and poisson equation becomes higher and convergence takes longer number of iterations because linear rate of convergence. 
+
+So, to take into account coupling of equations, linearisation of equations with respect to ($V,\phi_n \and\ \phi_p$) is done and newton's method is applied.\\
+
+\textbf{Newton's Method}: Linearisation with respect $V,\phi_n \and\ \phi_p$ about current approximate solution is calculated. This results in 
+a $3N \times 3N$ matrix with linearisation coefficients (Jacobian). The variables can be reordered to form a banded matrix with 4 diagonals above main diagonal and 4 diagonals below main diagonal. Residual is calculated for current approximate solution. Using residual and Jacobian, newton's method is used to generate next approximate solution. Since jacobian is banded, this can be computed easily and quickly. Newton's method is very good when initial guess is close enough because of its quadratic convergence. So, initially, some iterations are done with gummel method to generate good initial guess for newton's method. Then, newton's method reduces error and leads to fast convergence.     
+
+\textbf{Solution variables}: $(V,\phi_n,\phi_p)$ are considered solution variables when solving equations instead of $(V,n,p)$ because $V,\phi_n \and\ \phi_p$ can be independently varied. For 3 coupled equations, one variable is chosen as solution variable for each equation and others are kept constant. Also, physical dimensions of $V,\phi_n \and\ \phi_p$ are same ($Volts$). $\phi_n \and\ \phi_p$ vary smoothly over the mesh and are numerically also of similar magnitude as $V$.
+
+\textbf{Error criterion}: Error criterion for each of these equations is similar to \eqref{eq:38}. Combined error of each iteration is maximum of the errors of each individual equation.  
+
+\subsection{Numerical Precision}
+Numerical precision becomes an important issue at very low steady state currents under reverse bias. The convergence and accuracy of simulation requires numerical resolution of quantities $n-p$ and $n+p$ as they appear as first quantity contributes to space charge while other represents space charge variation with potential.\cite{atlas} To resolve these terms, calculations must maintain at least $P$ bits of precision where $P$ is given by 
+\begin{align*}
+	P = \log_2{n}-\log_2{p}
+\end{align*}
+From carrier statistics, $P$ required for accurate simulation can be estimated by 
+\begin{align*}
+	P \geq \frac{1}{ln(2)}\frac{E_g}{V_T}
+\end{align*}
+With double precision, internal scaling allows currents higher than $1 nA/cm^2$ to be measured accurately. For lower current, numerical noise due to low precision (double precision of about 52 bits), derivative calculation becomes imprecise and current calculation becomes unreliable. So, instead of double, long double with 64 bits of precision is used. Long double uses 80 bits in actual mathematical operations while it uses 128 bits in memory for proper memory alignment. So, memory usage becomes double. After using long double, currents as low as $0.005 nA/cm^2$ can be reliably calculated. Declared arrays are NumPy long double arrays so that all NumPy operations on it have 64 bits of precision.    
+
+\subsection{Storing and plotting results}
+Solution is written to files along with mesh points in text format(human readable). Solution file contains mesh node co-oridnates and semiconductor parameters ( net doping, potential, electron density and hole density ) at each mesh point. Solution file can be loaded in an input file. This is also used to set initial guess for electrically biased (non-equilibrium steady state) semiconductor.  
+
+Python's matplotlib is used for solution plotting. For 2D structures, contour plot can be drawn to see semiconductor parameters.
