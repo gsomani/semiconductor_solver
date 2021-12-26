@@ -12,7 +12,7 @@ def mesh(constants,nodes,doping,boundary):
 def zero(x):
     return 0
 
-def solve(x,Nd,tp,tn,mu,guess,g,glimit=0,eps=2**-36):
+def solve(x,Nd,tp,tn,mu,w,guess,g,glimit=0,eps=2**-36):
     V,fn,fp = guess    
     n = np.exp(V-fn)
     p = np.exp(-V+fp)
@@ -26,8 +26,8 @@ def solve(x,Nd,tp,tn,mu,guess,g,glimit=0,eps=2**-36):
 
     cur = -1
     while(err>=eps):
-        last_err = err       
-        if(cur==1):
+        last_err = err
+        if(cur==-1):
             V,n,p,fn,fp,err_V,err_n,err_p = non_eq.update_Vnp_newton(dx_inter,dx,V,n,p,fn,fp,tp,tn,lap,d,Nd,mu,g)
         else:
             V,n,p,fn,fp,err_V,err_n,err_p = non_eq.update_Vnp_gummel(dx_inter,dx,V,n,p,fn,fp,tp,tn,lap,d,Nd,mu,g,iterations=5)                                 
@@ -48,10 +48,12 @@ def solve(x,Nd,tp,tn,mu,guess,g,glimit=0,eps=2**-36):
     Jp = jp(x)    
     
     J = (Jn[0]+Jp[0]+Jn[-1]+Jp[-1])/2
+
+    dV,dfn,dfp = non_eq.update_Vnp_ac(dx_inter,dx,V,n,p,fn,fp,tp,tn,lap,d,Nd,mu,w,g)
     
     return np.array([V,fn,fp]),Jn,Jp,J
 
-def generate_JV(constants,mesh,Nd,bc,bias,step=1,g=zero,eps=2**-30):    
+def generate_JV(constants,mesh,Nd,bc,w_MHz,bias,step=1,g=zero,eps=2**-30):
     t0_us, J0, R0 = constants.t0_us, constants.J0, constants.R0
     Vt, L_um, ni = constants.Vt, 1e4*constants.Ld_i, constants.ni
     mu_p, mu_n  = constants.mu_p, constants.mu_n
@@ -61,6 +63,7 @@ def generate_JV(constants,mesh,Nd,bc,bias,step=1,g=zero,eps=2**-30):
     gen = generation(mesh[1])/constants.R0
     tp = tau[0]/t0_us
     tn = tau[1]/t0_us
+    w = w_MHz*t0_us
     x = mesh[1]/L_um
     Nd_n = Nd/ni
     mu = mu_p/mu_n
@@ -91,7 +94,7 @@ def generate_JV(constants,mesh,Nd,bc,bias,step=1,g=zero,eps=2**-30):
     print('---------------------------------------------------------------------------')
     print("%.3f\t\t%.3E %.3E\t%.3E %.3E\t%.3E" %(0,J_left[0][0],J_left[0][1],J_right[0][0],J_right[0][1],J[0]))
     
-    def bias_sweep(solution_i,bias):
+    def bias_sweep(solution_i,w,bias):
         n = int(np.ceil(abs(bias)))
         if(n>0):
             v = bias/n
@@ -99,7 +102,7 @@ def generate_JV(constants,mesh,Nd,bc,bias,step=1,g=zero,eps=2**-30):
         last_solution = np.copy(solution_i)
         jn,jp,j = jn_i,jp_i,j_i
         for i in range(n):
-            solution,jn,jp,j = solve(x,Nd_n,tp,tn,mu,guess,gen,eps=eps)
+            solution,jn,jp,j = solve(x,Nd_n,tp,tn,mu,w,guess,gen,eps=eps)
             J.append(j*J0)
             J_left.append(np.array([jn[0],jp[0]])*J0)
             J_right.append(np.array([jn[-1],jp[-1]])*J0)
@@ -110,7 +113,7 @@ def generate_JV(constants,mesh,Nd,bc,bias,step=1,g=zero,eps=2**-30):
             v = guess[1][0]
         return last_solution,jn,jp
 
-    last_solution,jn,jp = bias_sweep(solution_i,bias[0])
+    last_solution,jn,jp = bias_sweep(solution_i,w,bias[0])
 
     solution_start = [last_solution[0]*Vt,ni*np.exp(last_solution[0]-last_solution[1]),ni*np.exp(-last_solution[0]+last_solution[2]),jn*J0,jp*J0]    
 
@@ -120,7 +123,7 @@ def generate_JV(constants,mesh,Nd,bc,bias,step=1,g=zero,eps=2**-30):
     J_right = J_right[::-1]
     v = 0
 
-    last_solution,jn,jp = bias_sweep(solution_i,bias[1])
+    last_solution,jn,jp = bias_sweep(solution_i,w,bias[1])
 
     solution_end = [last_solution[0]*Vt,ni*np.exp(last_solution[0]-last_solution[1]),ni*np.exp(-last_solution[0]+last_solution[2]),jn*J0,jp*J0]
     

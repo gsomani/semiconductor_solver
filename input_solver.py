@@ -88,12 +88,12 @@ def plot_solution_2d(mesh,Nd,V,n,p,params,show=True):
 def gen(x):
     return 0
 
-def solve_current(constants,nodes,doping,contact,bias,gen=gen): 
+def solve_current(constants,nodes,doping,contact,w_MHz,bias,gen=gen):
     params = material(constants)
 
     x,Nd,bc = current_solver.mesh(params,nodes,doping,contact) # define mesh and boundary conditions
 
-    solution_start,solution_end,V,J_left,J_right,J = current_solver.generate_JV(params,x,Nd,bc,bias,gen) # calculate current
+    solution_start,solution_end,V,J_left,J_right,J = current_solver.generate_JV(params,x,Nd,bc,w_MHz,bias,gen) # calculate current
 
     file_io.write_jv_log(V,J_left,J_right,J,'pn_junction_jv.log') # write J-V data to dfile
    
