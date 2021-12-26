@@ -54,7 +54,7 @@ def update_Vnp_gummel(X,dx,V,n,p,fn,fp,tp,tn,lap,d,Nd,mu_p,gen,iterations=10):
 
 def update_Vnp_newton(X,dx,V,n,p,fn,fp,tp,tn,lap,d,Nd,mu_p,gen):
     V_ = (V[1:]+V[:-1])/2
-    
+
     R,R_ = (n - p - Nd)[1:-1], (n + p)[1:-1]
     beta = tp*(n+1)+tn*(p+1)
     pn = np.exp(fp-fn)
@@ -68,7 +68,7 @@ def update_Vnp_newton(X,dx,V,n,p,fn,fp,tp,tn,lap,d,Nd,mu_p,gen):
     bn1 = np.exp(V_[1:]-fn[1:-1])/dx[1:]
     bn = bn0 + bn1
     dn = ((pn-1)/beta - gen)[1:-1]*X + an + bn + cn
-    bn = bn - f_dfn[1:-1]*X    
+    bn = bn - f_dfn[1:-1]*X
 
     ap = mu_p*np.exp(-V_[:-1]+fp[:-2])/dx[:-1]
     cp = mu_p*np.exp(-V_[1:]+fp[2:])/dx[1:]
@@ -77,12 +77,12 @@ def update_Vnp_newton(X,dx,V,n,p,fn,fp,tp,tn,lap,d,Nd,mu_p,gen):
     bp = bp0 + bp1    
     dp = ((pn-1)/beta - gen)[1:-1]*X  - (ap + bp + cp)
     bp = bp - f_dfp[1:-1]*X
-    
+
     N = len(X)
     ab = np.zeros([9,3*N])
     b = np.zeros([3*N])
 
-    ab[0,4::3] = -(cn + bn1)[:-1]/2    
+    ab[0,4::3] = -(cn + bn1)[:-1]/2
     ab[1,4::3] = lap[2,:-1]
     ab[2,4::3] = -(cp + bp1)[:-1]/2
     ab[3,1::3] = ab[0,::3] + ab[6,::3] - f_dV[1:-1]*X
@@ -117,8 +117,70 @@ def update_Vnp_newton(X,dx,V,n,p,fn,fp,tp,tn,lap,d,Nd,mu_p,gen):
     V[1:-1] += nVp[1::3]
     fp[1:-1] += nVp[2::3]
 
-    
     n = np.exp(V-fn)
     p = np.exp(-V+fp)
-    
+
     return V,n,p,fn,fp,max(err_V),max(err_n),max(err_p)
+
+def update_Vnp_ac(X,dx,V,n,p,fn,fp,tp,tn,lap,d,Nd,mu_p,w,gen):
+    V_ = (V[1:]+V[:-1])/2
+
+    R,R_ = (n - p - Nd)[1:-1], (n + p)[1:-1]
+    beta = tp*(n+1)+tn*(p+1)
+    pn = np.exp(fp-fn)
+    f_dV = (pn-1)*(tn*p-tp*n)/(beta*beta)
+    f_dfp = pn/beta + (1-pn)*tn*p/(beta*beta)
+    f_dfn = -(f_dV+f_dfp)
+
+    an = -np.exp(V_[:-1]-fn[:-2])/dx[:-1]
+    cn = -np.exp(V_[1:]-fn[2:])/dx[1:]
+    bn0 = np.exp(V_[:-1]-fn[1:-1])/dx[:-1]
+    bn1 = np.exp(V_[1:]-fn[1:-1])/dx[1:]
+    bn = bn0 + bn1
+    dn = ((pn-1)/beta - gen)[1:-1]*X + an + bn + cn
+    bn = bn - f_dfn[1:-1]*X
+
+    ap = mu_p*np.exp(-V_[:-1]+fp[:-2])/dx[:-1]
+    cp = mu_p*np.exp(-V_[1:]+fp[2:])/dx[1:]
+    bp0 = -mu_p*np.exp(-V_[:-1]+fp[1:-1])/dx[:-1]
+    bp1 = -mu_p*np.exp(-V_[1:]+fp[1:-1])/dx[1:]
+    bp = bp0 + bp1
+    dp = ((pn-1)/beta - gen)[1:-1]*X  - (ap + bp + cp)
+    bp = bp - f_dfp[1:-1]*X
+
+    N = len(X)
+    ab = np.zeros([9,3*N],dtype=complex)
+    b = np.zeros([3*N],dtype=complex)
+
+    dn_dt = w*n[1:-1]*1j
+    dp_dt = w*p[1:-1]*1j
+
+    ab[0,4::3] = -(cn + bn1)[:-1]/2
+    ab[1,4::3] = lap[2,:-1]
+    ab[2,4::3] = -(cp + bp1)[:-1]/2
+    ab[3,1::3] = ab[0,::3] + ab[6,::3] - f_dV[1:-1]*X - dn_dt
+    ab[4,1::3] = lap[1] - R_ - dp_dt + dn_dt
+    ab[5,::3] = ab[2,::3] + ab[8,::3] - f_dV[1:-1]*X + dp_dt
+    ab[6,1:-3:3] = -(an + bn0)[1:]/2
+    ab[7,1:-3:3] = lap[0,1:]
+    ab[8,1:-3:3] = -(ap + bp0)[1:]/2
+
+    ab[1,3::3] = cn[:-1]
+    ab[4,::3] = bn
+    ab[5,::3] = n[1:-1] 
+    ab[6,::3] = -f_dfn[1:-1]*X
+    ab[7,:-3:3] = an[1:]
+
+    ab[1,5::3] = cp[:-1]
+    ab[2,2::3] = -f_dfp[1:-1]*X
+    ab[3,2::3] = p[1:-1]
+    ab[4,2::3] = bp
+    ab[7,2:-3:3] = ap[1:]
+
+    b[::3] = dn
+    b[1::3] = R - (lap[0]*V[:-2] + lap[1]*V[1:-1] + lap[2]*V[2:]) - d
+    b[2::3] = dp
+
+    nVp = solve_banded((4,4),ab,b)
+
+    return nVp
