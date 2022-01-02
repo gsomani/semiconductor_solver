@@ -93,7 +93,7 @@ def update_Vnp_newton(X,dx,V,n,p,fn,fp,tp,tn,lap,d,Nd,mu_p,gen):
     ab[0,4::3] = -(cn + bn1)[:-1]/2
     ab[1,3::3] = cn[:-1]
     ab[2,2::3] = -f_dfp[1:-1]*X
-    ab[3,1::3] = ab[0,4::3] + ab[6,1::3] - f_dV[1:-1]*X 
+    ab[3,1::3] = ab[0,1::3] + ab[6,1::3] - f_dV[1:-1]*X 
     ab[4,::3] = bn
     ab[6,1:-3:3] = -(an + bn0)[1:]/2
     ab[7,:-3:3] = an[1:]
@@ -102,7 +102,7 @@ def update_Vnp_newton(X,dx,V,n,p,fn,fp,tp,tn,lap,d,Nd,mu_p,gen):
     ab[1,5::3] = cp[:-1]
     ab[2,4::3] = -(cp + bp1)[:-1]/2
     ab[4,2::3] = bp
-    ab[5,1::3] = ab[2,4::3] + ab[8,1::3] - f_dV[1:-1]*X
+    ab[5,1::3] = ab[2,1::3] + ab[8,1::3] - f_dV[1:-1]*X
     ab[6,::3] = -f_dfn[1:-1]*X
     ab[7,2:-3:3] = ap[1:]
     ab[8,1:-3:3] = -(ap + bp0)[1:]/2
@@ -167,7 +167,7 @@ def update_Vnp_ac(X,dx,V,n,p,fn,fp,tp,tn,lap,d,Nd,mu_p,w,gen):
     ab[0,4::3] = -(cn + bn1)[:-1]/2
     ab[1,3::3] = cn[:-1]
     ab[2,2::3] = -f_dfp[1:-1]*X
-    ab[3,1::3] = ab[0,4::3] + ab[6,1::3] - f_dV[1:-1]*X 
+    ab[3,1::3] = ab[0,1::3] + ab[6,1::3] - f_dV[1:-1]*X 
     ab[4,::3] = bn - dn_dt
     ab[6,1:-3:3] = -(an + bn0)[1:]/2
     ab[7,:-3:3] = an[1:]
@@ -176,7 +176,7 @@ def update_Vnp_ac(X,dx,V,n,p,fn,fp,tp,tn,lap,d,Nd,mu_p,w,gen):
     ab[1,5::3] = cp[:-1]
     ab[2,4::3] = -(cp + bp1)[:-1]/2
     ab[4,2::3] = bp + dp_dt
-    ab[5,1::3] = ab[2,4::3] + ab[8,1::3] - f_dV[1:-1]*X
+    ab[5,1::3] = ab[2,1::3] + ab[8,1::3] - f_dV[1:-1]*X
     ab[6,::3] = -f_dfn[1:-1]*X
     ab[7,2:-3:3] = ap[1:]
     ab[8,1:-3:3] = -(ap + bp0)[1:]/2
