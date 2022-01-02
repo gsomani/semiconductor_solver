@@ -82,27 +82,30 @@ def update_Vnp_newton(X,dx,V,n,p,fn,fp,tp,tn,lap,d,Nd,mu_p,gen):
     ab = np.zeros([9,3*N])
     b = np.zeros([3*N])
 
-    ab[0,4::3] = -(cn + bn1)[:-1]/2
+    # Poisson Equation
     ab[1,4::3] = lap[2,:-1]
-    ab[2,4::3] = -(cp + bp1)[:-1]/2
-    ab[3,1::3] = ab[0,::3] + ab[6,::3] - f_dV[1:-1]*X
     ab[4,1::3] = lap[1]-R_
-    ab[5,::3] = ab[2,::3] + ab[8,::3] - f_dV[1:-1]*X
-    ab[6,1:-3:3] = -(an + bn0)[1:]/2
     ab[7,1:-3:3] = lap[0,1:]
-    ab[8,1:-3:3] = -(ap + bp0)[1:]/2
-
-    ab[1,3::3] = cn[:-1]
-    ab[4,::3] = bn
     ab[5,::3] = n[1:-1] 
-    ab[6,::3] = -f_dfn[1:-1]*X
-    ab[7,:-3:3] = an[1:]
-
-    ab[1,5::3] = cp[:-1]
-    ab[2,2::3] = -f_dfp[1:-1]*X
     ab[3,2::3] = p[1:-1]
+
+    # Electron Continuity Equation
+    ab[0,4::3] = -(cn + bn1)[:-1]/2
+    ab[1,3::3] = cn[:-1]
+    ab[2,2::3] = -f_dfp[1:-1]*X
+    ab[3,1::3] = ab[0,4::3] + ab[6,1::3] - f_dV[1:-1]*X 
+    ab[4,::3] = bn
+    ab[6,1:-3:3] = -(an + bn0)[1:]/2
+    ab[7,:-3:3] = an[1:]
+  
+    # Hole continuity Equation 
+    ab[1,5::3] = cp[:-1]
+    ab[2,4::3] = -(cp + bp1)[:-1]/2
     ab[4,2::3] = bp
+    ab[5,1::3] = ab[2,4::3] + ab[8,1::3] - f_dV[1:-1]*X
+    ab[6,::3] = -f_dfn[1:-1]*X
     ab[7,2:-3:3] = ap[1:]
+    ab[8,1:-3:3] = -(ap + bp0)[1:]/2
 
     b[::3] = dn
     b[1::3] = R - (lap[0]*V[:-2] + lap[1]*V[1:-1] + lap[2]*V[2:]) - d
@@ -137,7 +140,6 @@ def update_Vnp_ac(X,dx,V,n,p,fn,fp,tp,tn,lap,d,Nd,mu_p,w,gen):
     bn0 = np.exp(V_[:-1]-fn[1:-1])/dx[:-1]
     bn1 = np.exp(V_[1:]-fn[1:-1])/dx[1:]
     bn = bn0 + bn1
-    dn = ((pn-1)/beta - gen)[1:-1]*X + an + bn + cn
     bn = bn - f_dfn[1:-1]*X
 
     ap = mu_p*np.exp(-V_[:-1]+fp[:-2])/dx[:-1]
@@ -145,7 +147,6 @@ def update_Vnp_ac(X,dx,V,n,p,fn,fp,tp,tn,lap,d,Nd,mu_p,w,gen):
     bp0 = -mu_p*np.exp(-V_[:-1]+fp[1:-1])/dx[:-1]
     bp1 = -mu_p*np.exp(-V_[1:]+fp[1:-1])/dx[1:]
     bp = bp0 + bp1
-    dp = ((pn-1)/beta - gen)[1:-1]*X  - (ap + bp + cp)
     bp = bp - f_dfp[1:-1]*X
 
     N = len(X)
@@ -155,31 +156,36 @@ def update_Vnp_ac(X,dx,V,n,p,fn,fp,tp,tn,lap,d,Nd,mu_p,w,gen):
     dn_dt = w*n[1:-1]*1j
     dp_dt = w*p[1:-1]*1j
 
-    ab[0,4::3] = -(cn + bn1)[:-1]/2
+    # Poisson Equation
     ab[1,4::3] = lap[2,:-1]
-    ab[2,4::3] = -(cp + bp1)[:-1]/2
-    ab[3,1::3] = ab[0,::3] + ab[6,::3] - f_dV[1:-1]*X
     ab[4,1::3] = lap[1] - R_ - dp_dt + dn_dt
-    ab[5,::3] = ab[2,::3] + ab[8,::3] - f_dV[1:-1]*X
-    ab[6,1:-3:3] = -(an + bn0)[1:]/2
     ab[7,1:-3:3] = lap[0,1:]
+    ab[5,::3] = n[1:-1] 
+    ab[3,2::3] = p[1:-1]
+
+    # Electron Continuity Equation
+    ab[0,4::3] = -(cn + bn1)[:-1]/2
+    ab[1,3::3] = cn[:-1]
+    ab[2,2::3] = -f_dfp[1:-1]*X
+    ab[3,1::3] = ab[0,4::3] + ab[6,1::3] - f_dV[1:-1]*X 
+    ab[4,::3] = bn - dn_dt
+    ab[6,1:-3:3] = -(an + bn0)[1:]/2
+    ab[7,:-3:3] = an[1:]
+  
+    # Hole continuity Equation 
+    ab[1,5::3] = cp[:-1]
+    ab[2,4::3] = -(cp + bp1)[:-1]/2
+    ab[4,2::3] = bp + dp_dt
+    ab[5,1::3] = ab[2,4::3] + ab[8,1::3] - f_dV[1:-1]*X
+    ab[6,::3] = -f_dfn[1:-1]*X
+    ab[7,2:-3:3] = ap[1:]
     ab[8,1:-3:3] = -(ap + bp0)[1:]/2
 
-    ab[1,3::3] = cn[:-1]
-    ab[4,::3] = bn - dn_dt
-    ab[5,::3] = n[1:-1] 
-    ab[6,::3] = -f_dfn[1:-1]*X
-    ab[7,:-3:3] = an[1:]
+    b[::3] = 0
+    b[1::3] = - d
+    b[2::3] = 0
 
-    ab[1,5::3] = cp[:-1]
-    ab[2,2::3] = -f_dfp[1:-1]*X
-    ab[3,2::3] = p[1:-1]
-    ab[4,2::3] = bp + dp_dt
-    ab[7,2:-3:3] = ap[1:]
-
-    b[::3] = dn
-    b[1::3] = R - (lap[0]*V[:-2] + lap[1]*V[1:-1] + lap[2]*V[2:]) - d
-    b[2::3] = dp
+    print(ab)
 
     nVp = solve_banded((4,4),ab,b)
 
