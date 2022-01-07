@@ -158,7 +158,7 @@ def update_Vnp_ac(X,dx,V,n,p,fn,fp,tp,tn,lap,d,Nd,mu_p,w,gen):
 
     # Poisson Equation
     ab[1,4::3] = lap[2,:-1]
-    ab[4,1::3] = lap[1] - R_ - dp_dt + dn_dt
+    ab[4,1::3] = lap[1] - R_
     ab[7,1:-3:3] = lap[0,1:]
     ab[5,::3] = n[1:-1] 
     ab[3,2::3] = p[1:-1]
@@ -167,7 +167,7 @@ def update_Vnp_ac(X,dx,V,n,p,fn,fp,tp,tn,lap,d,Nd,mu_p,w,gen):
     ab[0,4::3] = -(cn + bn1)[:-1]/2
     ab[1,3::3] = cn[:-1]
     ab[2,2::3] = -f_dfp[1:-1]*X
-    ab[3,1::3] = ab[0,1::3] + ab[6,1::3] - f_dV[1:-1]*X 
+    ab[3,1::3] = ab[0,1::3] + ab[6,1::3] - f_dV[1:-1]*X + dn_dt 
     ab[4,::3] = bn - dn_dt
     ab[6,1:-3:3] = -(an + bn0)[1:]/2
     ab[7,:-3:3] = an[1:]
@@ -176,16 +176,14 @@ def update_Vnp_ac(X,dx,V,n,p,fn,fp,tp,tn,lap,d,Nd,mu_p,w,gen):
     ab[1,5::3] = cp[:-1]
     ab[2,4::3] = -(cp + bp1)[:-1]/2
     ab[4,2::3] = bp + dp_dt
-    ab[5,1::3] = ab[2,1::3] + ab[8,1::3] - f_dV[1:-1]*X
+    ab[5,1::3] = ab[2,1::3] + ab[8,1::3] - f_dV[1:-1]*X - dp_dt
     ab[6,::3] = -f_dfn[1:-1]*X
     ab[7,2:-3:3] = ap[1:]
     ab[8,1:-3:3] = -(ap + bp0)[1:]/2
 
     b[::3] = 0
-    b[1::3] = - d
+    b[1::3] = 0
     b[2::3] = 0
-
-    print(ab)
 
     nVp = solve_banded((4,4),ab,b)
 
