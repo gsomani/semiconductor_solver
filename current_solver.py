@@ -20,7 +20,7 @@ def solve(x,Nd,tp,tn,mu,w,guess,g,glimit=0,eps=2**-36):
     dx_inter = (x[2:]-x[:-2])/2
 
     lap,d,[start,stop] = deriv.laplacian_tridiagnol(x,[['d',V[0]],['d',V[-1]]],geom='rect') # Set up tridiagnol matrix
-
+    
     V,n,p,fn,fp,err_V,err_n,err_p = non_eq.update_Vnp_gummel(dx_inter,dx,V,n,p,fn,fp,tp,tn,lap,d,Nd,mu,g,iterations=5)                                 
     err = max(err_V,err_n,err_p)
 
@@ -49,6 +49,9 @@ def solve(x,Nd,tp,tn,mu,w,guess,g,glimit=0,eps=2**-36):
     
     J = (Jn[0]+Jp[0]+Jn[-1]+Jp[-1])/2
 
+    
+    lap,d,[start,stop] = deriv.laplacian_tridiagnol(x,[['d',1],['d',0]],geom='rect') # Set up tridiagnol matrix
+    
     dV,dfn,dfp = non_eq.update_Vnp_ac(dx_inter,dx,V,n,p,fn,fp,tp,tn,lap,d,Nd,mu,w,g)
     
     return np.array([V,fn,fp]),Jn,Jp,J
