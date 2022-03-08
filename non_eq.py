@@ -142,7 +142,6 @@ def update_Vnp_ac(X,dx,V,n,p,fn,fp,tp,tn,lap,d,mu_p,w,gen):
     bn = bn0 + bn1
     bn = bn - f_dfn[1:-1]*X
 
-
     ap = mu_p*np.exp(-V_[:-1]+fp[:-2])/dx[:-1]
     cp = mu_p*np.exp(-V_[1:]+fp[2:])/dx[1:]
     bp0 = -mu_p*np.exp(-V_[:-1]+fp[1:-1])/dx[:-1]
@@ -181,13 +180,10 @@ def update_Vnp_ac(X,dx,V,n,p,fn,fp,tp,tn,lap,d,mu_p,w,gen):
     ab[7,2:-3:3] = ap[1:]
     ab[8,1:-3:3] = -(ap + bp0)[1:]/2
     ab[5,1::3] = ab[2,1::3] + ab[8,1::3] - f_dV[1:-1]*X + dp_dt
-
     
     b[::3] = -d
     b[1::3] = 0
     b[2::3] = 0
-    
-    print(an+bn+cn)
 
     nVp = solve_banded((4,4),ab,b)
 
@@ -201,7 +197,5 @@ def update_Vnp_ac(X,dx,V,n,p,fn,fp,tp,tn,lap,d,mu_p,w,gen):
     dfn[1:-1] = nVp[::3]
     dV[1:-1] = np.array([0.8,0.6,0.4,0.2])
     dfp[1:-1] = nVp[2::3]
-
-    print(dfn)
 
     return dV,dfn,dfp
