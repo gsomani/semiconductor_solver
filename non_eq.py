@@ -93,19 +93,19 @@ def update_Vnp_newton(X,dx,V,n,p,fn,fp,tp,tn,lap,d,Nd,mu_p,gen):
     ab[0,4::3] = -(cn + bn1)[:-1]/2
     ab[1,3::3] = cn[:-1]
     ab[2,2::3] = -f_dfp[1:-1]*X
+    ab[3,1::3] = ab[0,1::3] + ab[6,1::3] - f_dV[1:-1]*X 
     ab[4,::3] = bn
     ab[6,1:-3:3] = -(an + bn0)[1:]/2
     ab[7,:-3:3] = an[1:]
-    ab[3,1::3] = ab[0,1::3] + ab[6,1::3] - f_dV[1:-1]*X 
   
     # Hole continuity Equation 
     ab[1,5::3] = cp[:-1]
     ab[2,4::3] = -(cp + bp1)[:-1]/2
     ab[4,2::3] = bp
+    ab[5,1::3] = ab[2,1::3] + ab[8,1::3] - f_dV[1:-1]*X
     ab[6,::3] = -f_dfn[1:-1]*X
     ab[7,2:-3:3] = ap[1:]
     ab[8,1:-3:3] = -(ap + bp0)[1:]/2
-    ab[5,1::3] = ab[2,1::3] + ab[8,1::3] - f_dV[1:-1]*X
 
     b[::3] = dn
     b[1::3] = R - (lap[0]*V[:-2] + lap[1]*V[1:-1] + lap[2]*V[2:]) - d
@@ -125,10 +125,10 @@ def update_Vnp_newton(X,dx,V,n,p,fn,fp,tp,tn,lap,d,Nd,mu_p,gen):
 
     return V,n,p,fn,fp,max(err_V),max(err_n),max(err_p)
 
-def update_Vnp_ac(X,dx,V,n,p,fn,fp,tp,tn,lap,d,mu_p,w,gen):
+def update_Vnp_ac(X,dx,V,n,p,fn,fp,tp,tn,lap,d,Nd,mu_p,w,gen):
     V_ = (V[1:]+V[:-1])/2
 
-    R_ = (n + p)[1:-1]
+    R,R_ = (n - p - Nd)[1:-1], (n + p)[1:-1]
     beta = tp*(n+1)+tn*(p+1)
     pn = np.exp(fp-fn)
     f_dV = (pn-1)*(tn*p-tp*n)/(beta*beta)
@@ -141,7 +141,6 @@ def update_Vnp_ac(X,dx,V,n,p,fn,fp,tp,tn,lap,d,mu_p,w,gen):
     bn1 = np.exp(V_[1:]-fn[1:-1])/dx[1:]
     bn = bn0 + bn1
     bn = bn - f_dfn[1:-1]*X
-
 
     ap = mu_p*np.exp(-V_[:-1]+fp[:-2])/dx[:-1]
     cp = mu_p*np.exp(-V_[1:]+fp[2:])/dx[1:]
@@ -159,7 +158,7 @@ def update_Vnp_ac(X,dx,V,n,p,fn,fp,tp,tn,lap,d,mu_p,w,gen):
 
     # Poisson Equation
     ab[1,4::3] = lap[2,:-1]
-    ab[4,1::3] = lap[1] - R_
+    ab[4,1::3] = lap[1] - R_ - dp_dt + dn_dt
     ab[7,1:-3:3] = lap[0,1:]
     ab[5,::3] = n[1:-1] 
     ab[3,2::3] = p[1:-1]
@@ -168,40 +167,35 @@ def update_Vnp_ac(X,dx,V,n,p,fn,fp,tp,tn,lap,d,mu_p,w,gen):
     ab[0,4::3] = -(cn + bn1)[:-1]/2
     ab[1,3::3] = cn[:-1]
     ab[2,2::3] = -f_dfp[1:-1]*X
-    ab[4,::3] = bn + dn_dt
+    ab[3,1::3] = ab[0,1::3] + ab[6,1::3] - f_dV[1:-1]*X 
+    ab[4,::3] = bn - dn_dt
     ab[6,1:-3:3] = -(an + bn0)[1:]/2
     ab[7,:-3:3] = an[1:]
-    ab[3,1::3] = ab[0,1::3] + ab[6,1::3] - f_dV[1:-1]*X - dn_dt
   
     # Hole continuity Equation 
     ab[1,5::3] = cp[:-1]
     ab[2,4::3] = -(cp + bp1)[:-1]/2
-    ab[4,2::3] = bp - dp_dt
+    ab[4,2::3] = bp + dp_dt
+    ab[5,1::3] = ab[2,1::3] + ab[8,1::3] - f_dV[1:-1]*X
     ab[6,::3] = -f_dfn[1:-1]*X
     ab[7,2:-3:3] = ap[1:]
     ab[8,1:-3:3] = -(ap + bp0)[1:]/2
-    ab[5,1::3] = ab[2,1::3] + ab[8,1::3] - f_dV[1:-1]*X + dp_dt
 
-    
-    b[::3] = -d
-    b[1::3] = 0
+    b[::3] = 0
+    b[1::3] = - d
     b[2::3] = 0
-    
-    print(an+bn+cn)
+
+    print(ab)
 
     nVp = solve_banded((4,4),ab,b)
 
     dfn = np.zeros(N+2,dtype=complex)
     dfp = np.zeros(N+2,dtype=complex)
     dV = np.zeros(N+2,dtype=complex)
-    
-    dV[0] = dfn[0] = dfp[0] = 1
 
-    
     dfn[1:-1] = nVp[::3]
-    dV[1:-1] = np.array([0.8,0.6,0.4,0.2])
+    dV[1:-1] = nVp[1::3]
     dfp[1:-1] = nVp[2::3]
 
-    print(dfn)
 
     return dV,dfn,dfp

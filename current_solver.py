@@ -20,7 +20,7 @@ def solve(x,Nd,tp,tn,mu,w,guess,g,glimit=0,eps=2**-36):
     dx_inter = (x[2:]-x[:-2])/2
 
     lap,d,[start,stop] = deriv.laplacian_tridiagnol(x,[['d',V[0]],['d',V[-1]]],geom='rect') # Set up tridiagnol matrix
-    
+
     V,n,p,fn,fp,err_V,err_n,err_p = non_eq.update_Vnp_gummel(dx_inter,dx,V,n,p,fn,fp,tp,tn,lap,d,Nd,mu,g,iterations=5)                                 
     err = max(err_V,err_n,err_p)
 
@@ -49,28 +49,9 @@ def solve(x,Nd,tp,tn,mu,w,guess,g,glimit=0,eps=2**-36):
     
     J = (Jn[0]+Jp[0]+Jn[-1]+Jp[-1])/2
 
-    return np.array([V,fn,fp]),Jn,Jp,J
-
-def solve_ac(x,tp,tn,mu,w,guess,g):
-    V,fn,fp = guess    
-    n = np.exp(V-fn)
-    p = np.exp(-V+fp)
-    dx = x[1:]-x[:-1]
-    dx_inter = (x[2:]-x[:-2])/2
-
-    lap,d,[start,stop] = deriv.laplacian_tridiagnol(x,[['d',1],['d',0]],geom='rect') # Set up tridiagnol matrix
-
-    dV,dfn,dfp = non_eq.update_Vnp_ac(dx_inter,dx,V,n,p,fn,fp,tp,tn,lap,d,mu,w,g)
-   
-    dV_ = (dV[1:]+dV[:-1])/2
+    dV,dfn,dfp = non_eq.update_Vnp_ac(dx_inter,dx,V,n,p,fn,fp,tp,tn,lap,d,Nd,mu,w,g)
     
-    V_ = (V[1:]+V[:-1])/2
-    jn_ac = (np.exp(V_-fn[1:]) * (dV_ - dfn[1:]) - np.exp(V_-fn[:-1])*(dV_-dfn[:-1]))/dx
-    jp_ac = -mu*(np.exp(-V_+dfp[1:]) * (-dV_ + dfp[1:]) - np.exp(-V_+dfp[:-1])*(-dV_+dfp[:-1]))/dx
-    j_disp = 1j*w*(dV[:-1]-dV[1:])/dx            
-
-    j = jn_ac + jp_ac + j_disp
-
+    return np.array([V,fn,fp]),Jn,Jp,J
 
 def generate_JV(constants,mesh,Nd,bc,w_MHz,bias,step=1,g=zero,eps=2**-30):
     t0_us, J0, R0 = constants.t0_us, constants.J0, constants.R0
@@ -112,10 +93,7 @@ def generate_JV(constants,mesh,Nd,bc,w_MHz,bias,step=1,g=zero,eps=2**-30):
     print("\t\tJn\tJp\t\tJn\tJp")
     print('---------------------------------------------------------------------------')
     print("%.3f\t\t%.3E %.3E\t%.3E %.3E\t%.3E" %(0,J_left[0][0],J_left[0][1],J_right[0][0],J_right[0][1],J[0]))
-   
     
-    solve_ac(x,tp,tn,mu,w,solution_i,gen)
- 
     def bias_sweep(solution_i,w,bias):
         n = int(np.ceil(abs(bias)))
         if(n>0):
@@ -123,10 +101,8 @@ def generate_JV(constants,mesh,Nd,bc,w_MHz,bias,step=1,g=zero,eps=2**-30):
             guess = solution_i + v*r
         last_solution = np.copy(solution_i)
         jn,jp,j = jn_i,jp_i,j_i
-       
         for i in range(n):
             solution,jn,jp,j = solve(x,Nd_n,tp,tn,mu,w,guess,gen,eps=eps)
-            solve_ac(x,tp,tn,mu,w,solution,gen)
             J.append(j*J0)
             J_left.append(np.array([jn[0],jp[0]])*J0)
             J_right.append(np.array([jn[-1],jp[-1]])*J0)
